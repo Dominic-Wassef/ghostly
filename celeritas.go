@@ -186,6 +186,7 @@ func (c *Ghostly) createRenderer() {
 		RootPath: c.RootPath,
 		Port:     c.config.port,
 		JetViews: c.JetViews,
+		Session:  c.Session,
 	}
 	c.Render = &myRenderer
 }
