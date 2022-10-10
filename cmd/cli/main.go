@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 	"os"
 
 	"github.com/dominic-wassef/ghostly"
@@ -14,10 +13,13 @@ const version = "1.0.0"
 var gho ghostly.Ghostly
 
 func main() {
+	var message string
 	arg1, arg2, arg3, err := validateInput()
 	if err != nil {
 		exitGracefully(err)
 	}
+
+	setup()
 
 	switch arg1 {
 	case "help":
@@ -25,6 +27,16 @@ func main() {
 
 	case "version":
 		color.Yellow("Application version: " + version)
+
+	case "migrate":
+		if arg2 == "" {
+			arg2 = "up"
+		}
+		err = doMigrate(arg2, arg3)
+		if err != nil {
+			exitGracefully(err)
+		}
+		message = "Migrations complete"
 
 	case "make":
 		if arg2 == "" {
@@ -36,8 +48,9 @@ func main() {
 		}
 
 	default:
-		log.Println(arg2, arg3)
+		showHelp()
 	}
+	exitGracefully(nil, message)
 }
 
 func validateInput() (string, string, string, error) {
@@ -58,13 +71,6 @@ func validateInput() (string, string, string, error) {
 	}
 
 	return arg1, arg2, arg3, nil
-}
-
-func showHelp() {
-	color.Yellow(`Available commands:
-	help 			- show the help commands
-	version 		- print application version
-	`)
 }
 
 func exitGracefully(err error, msg ...string) {
