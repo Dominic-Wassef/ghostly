@@ -1,0 +1,10 @@
+package handlers
+
+import (
+  "net/http"
+)
+
+// $HANDLERNAME$ comment goes here
+func (h *Handlers) $HANDLERNAME$(w http.ResponseWriter, r *http.Request) {
+
+}
