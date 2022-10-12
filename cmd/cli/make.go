@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/gertd/go-pluralize"
 	"github.com/iancoleman/strcase"
 )
@@ -14,6 +15,9 @@ import (
 func doMake(arg2, arg3 string) error {
 
 	switch arg2 {
+	case "key":
+		rnd := gho.RandomString(32)
+		color.Yellow("32 character encryption key: %s", rnd)
 	case "migration":
 		dbType := gho.DB.DataType
 		if arg3 == "" {
