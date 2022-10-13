@@ -33,6 +33,7 @@ func (c *RedisCache) Has(str string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return ok, nil
 }
 
@@ -62,6 +63,7 @@ func (c *RedisCache) Get(str string) (interface{}, error) {
 	key := fmt.Sprintf("%s:%s", c.Prefix, str)
 	conn := c.Conn.Get()
 	defer conn.Close()
+
 	cacheEntry, err := redis.Bytes(conn.Do("GET", key))
 	if err != nil {
 		return nil, err
@@ -71,7 +73,9 @@ func (c *RedisCache) Get(str string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	item := decoded[key]
+
 	return item, nil
 }
 
@@ -79,6 +83,7 @@ func (c *RedisCache) Set(str string, value interface{}, expires ...int) error {
 	key := fmt.Sprintf("%s:%s", c.Prefix, str)
 	conn := c.Conn.Get()
 	defer conn.Close()
+
 	entry := Entry{}
 	entry[key] = value
 	encoded, err := encode(entry)
@@ -97,6 +102,7 @@ func (c *RedisCache) Set(str string, value interface{}, expires ...int) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -129,6 +135,7 @@ func (c *RedisCache) EmptyByMatch(str string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -155,14 +162,17 @@ func (c *RedisCache) Empty() error {
 func (c *RedisCache) getKeys(pattern string) ([]string, error) {
 	conn := c.Conn.Get()
 	defer conn.Close()
+
 	iter := 0
 	keys := []string{}
+
 	for {
 		arr, err := redis.Values(conn.Do("SCAN", iter, "MATCH", fmt.Sprintf("%s*", pattern)))
 		if err != nil {
 			return keys, err
 		}
-		iter, _ := redis.Int(arr[0], nil)
+
+		iter, _ = redis.Int(arr[0], nil)
 		k, _ := redis.Strings(arr[1], nil)
 		keys = append(keys, k...)
 
@@ -170,5 +180,6 @@ func (c *RedisCache) getKeys(pattern string) ([]string, error) {
 			break
 		}
 	}
+
 	return keys, nil
 }

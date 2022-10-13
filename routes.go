@@ -7,15 +7,16 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (c *Ghostly) routes() http.Handler {
+func (g *Ghostly) routes() http.Handler {
 	mux := chi.NewRouter()
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
-	if c.Debug {
+	if g.Debug {
 		mux.Use(middleware.Logger)
 	}
 	mux.Use(middleware.Recoverer)
-	mux.Use(c.SessionLoad)
+	mux.Use(g.SessionLoad)
+	mux.Use(g.noSurf)
 
 	return mux
 }

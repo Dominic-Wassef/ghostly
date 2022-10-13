@@ -10,7 +10,7 @@ import (
 
 // OpenDB opens a connection to a sql database. dbType must be one of postgres (or pgx).
 // TODO: add support for mysql/mariadb
-func (c *Ghostly) OpenDB(dbType, dsn string) (*sql.DB, error) {
+func (g *Ghostly) OpenDB(dbType, dsn string) (*sql.DB, error) {
 	if dbType == "postgres" || dbType == "postgresql" {
 		dbType = "pgx"
 	}
