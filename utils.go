@@ -13,5 +13,5 @@ func (g *Ghostly) LoadTime(start time.Time) {
 	funcObj := runtime.FuncForPC(pc)
 	runtimeFunc := regexp.MustCompile(`^.*\.(.*)$`)
 	name := runtimeFunc.ReplaceAllString(funcObj.Name(), "$1")
-	g.InfoLog.Println(fmt.Sprintf("Load time: %s took %s", name, elapsed))
+	g.InfoLog.Printf(fmt.Sprintf("Load time: %s took %s", name, elapsed))
 }
