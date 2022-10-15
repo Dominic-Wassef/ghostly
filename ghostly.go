@@ -12,6 +12,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/dominic-wassef/ghostly/cache"
+	"github.com/dominic-wassef/ghostly/mailer"
 	"github.com/dominic-wassef/ghostly/render"
 	"github.com/dominic-wassef/ghostly/session"
 	"github.com/go-chi/chi/v5"
@@ -45,6 +46,7 @@ type Ghostly struct {
 	EncryptionKey string
 	Cache         cache.Cache
 	Scheduler     *cron.Cron
+	Mail          mailer.Mail
 }
 
 type config struct {
@@ -61,7 +63,7 @@ type config struct {
 func (g *Ghostly) New(rootPath string) error {
 	pathConfig := initPaths{
 		rootPath:    rootPath,
-		folderNames: []string{"handlers", "migrations", "views", "data", "public", "tmp", "logs", "middleware"},
+		folderNames: []string{"handlers", "migrations", "views", "mail", "data", "public", "tmp", "logs", "middleware"},
 	}
 
 	err := g.Init(pathConfig)
@@ -119,6 +121,7 @@ func (g *Ghostly) New(rootPath string) error {
 
 	g.InfoLog = infoLog
 	g.ErrorLog = errorLog
+	g.Mail = g.createMailer()
 	g.Debug, _ = strconv.ParseBool(os.Getenv("DEBUG"))
 	g.Version = version
 	g.RootPath = rootPath
@@ -183,6 +186,7 @@ func (g *Ghostly) New(rootPath string) error {
 	}
 
 	g.createRenderer()
+	go g.Mail.ListenForMail()
 
 	return nil
 }
@@ -253,6 +257,27 @@ func (g *Ghostly) createRenderer() {
 		Session:  g.Session,
 	}
 	g.Render = &myRenderer
+}
+
+func (g *Ghostly) createMailer() mailer.Mail {
+	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
+	m := mailer.Mail{
+		Domain:      os.Getenv("MAIL_DOMAIN"),
+		Templates:   g.RootPath + "/mail",
+		Host:        os.Getenv("SMTP_HOST"),
+		Port:        port,
+		Username:    os.Getenv("SMTP_USERNAME"),
+		Password:    os.Getenv("SMTP_PASSWORD"),
+		Encryption:  os.Getenv("SMTP_ENCRYPTION"),
+		FromName:    os.Getenv("FROM_NAME"),
+		FromAddress: os.Getenv("FROM_ADDRESS"),
+		Jobs:        make(chan mailer.Message, 20),
+		Results:     make(chan mailer.Result, 20),
+		API:         os.Getenv("MAILER_API"),
+		APIKey:      os.Getenv("MAILER_KEY"),
+		APIUrl:      os.Getenv("MAILER_URL"),
+	}
+	return m
 }
 
 func (g *Ghostly) createClientRedisCache() *cache.RedisCache {
