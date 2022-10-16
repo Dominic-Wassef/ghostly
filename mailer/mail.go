@@ -59,7 +59,7 @@ func (m *Mail) ListenForMail() {
 
 func (m *Mail) Send(msg Message) error {
 	if len(m.API) > 0 && len(m.APIKey) > 0 && len(m.APIUrl) > 0 && m.API != "smtp" {
-		m.ChooseAPI(msg)
+		return m.ChooseAPI(msg)
 	}
 	return m.SendSMTPMessage(msg)
 }
