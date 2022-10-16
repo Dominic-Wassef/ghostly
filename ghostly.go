@@ -121,10 +121,10 @@ func (g *Ghostly) New(rootPath string) error {
 
 	g.InfoLog = infoLog
 	g.ErrorLog = errorLog
-	g.Mail = g.createMailer()
 	g.Debug, _ = strconv.ParseBool(os.Getenv("DEBUG"))
 	g.Version = version
 	g.RootPath = rootPath
+	g.Mail = g.createMailer()
 	g.Routes = g.routes().(*chi.Mux)
 
 	g.config = config{
