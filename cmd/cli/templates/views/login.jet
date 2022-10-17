@@ -1,0 +1,77 @@
+{{extends "./layouts/base.jet"}}
+
+{{block browserTitle()}}
+Login
+{{end}}
+
+{{block css()}} {{end}}
+
+{{block pageContent()}}
+<h2 class="mt-5 text-center">Login</h2>
+
+
+<hr>
+
+{{if .Flash != ""}}
+<div class="alert alert-info text-center">
+    {{.Flash}}
+</div>
+{{end}}
+
+<form method="post" action="/users/login"
+    name="login-form" id="login-form"
+    class="d-block needs-validation"
+    autocomplete="off" novalidate="">
+
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email"
+            required="" autocomplete="email-new">
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password"
+            required="" autocomplete="password-new">
+    </div>
+
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" value="remember" name="remember" id="remember">
+        <label class="form-check-label" for="remember">Remember me</label>
+    </div>
+
+    <hr>
+
+    <a href="javascript:void(0)" class="btn btn-primary" onclick="val()">Login</a>
+    <p class="mt-2">
+        <small><a href="/users/forgot-password">Forgot password?</a></small>
+    </p>
+
+</form>
+
+<div class="text-center">
+    <a class="btn btn-outline-secondary" href="/">Back...</a>
+</div>
+
+<p>&nbsp;</p>
+
+{{end}}
+
+{{block js()}}
+<script>
+function val() {
+    let form = document.getElementById("login-form");
+    if (form.checkValidity() === false){
+        this.event.preventDefault();
+        this.event.stopPropagation();
+        form.classList.add("was-validated");
+        return;
+    }
+
+    form.classList.add("was-validated");
+    form.submit();
+}
+</script>
+{{end}}

@@ -1,0 +1,75 @@
+{{extends "./layouts/base.jet"}}
+
+{{block browserTitle()}}
+Forgot Password
+{{end}}
+
+{{block css()}} {{end}}
+
+{{block pageContent()}}
+<h2 class="mt-5 text-center">Forgot Password</h2>
+
+<hr>
+
+{{if .Error != ""}}
+<div class="alert alert-danger text-center">
+    {{.Error}}
+</div>
+{{end}}
+
+{{if .Flash != ""}}
+<div class="alert alert-info text-center">
+    {{.Flash}}
+</div>
+{{end}}
+
+
+<p>
+    Enter your email address in the form below, and we'll
+    email you a link to reset your password.
+</p>
+
+<form method="post"
+      name="forgot-form" id="forgot-form"
+      class="d-block needs-validation"
+      action="/users/forgot-password"
+      autocomplete="off" novalidate=""
+      onkeydown="return event.key != 'Enter';"
+>
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email"
+               required="" autocomplete="email-new">
+    </div>
+
+    <hr>
+
+    <a href="javascript:void(0)" class="btn btn-primary" onclick="val()">Send Reset Password Email</a>
+
+</form>
+
+<div class="text-center">
+    <a class="btn btn-outline-secondary" href="/users/login">Back...</a>
+</div>
+
+
+<p>&nbsp;</p>
+{{end}}
+
+{{ block js()}}
+<script>
+    function val() {
+        let form = document.getElementById("forgot-form");
+        if (form.checkValidity() === false) {
+            this.event.preventDefault();
+            this.event.stopPropagation();
+            form.classList.add("was-validated");
+            return;
+        }
+        form.classList.add("was-validated");
+        document.getElementById("forgot-form").submit();
+    }
+</script>
+{{end}}
