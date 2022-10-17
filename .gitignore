@@ -1,2 +1,3 @@
 coverage.out
 cache/testdata/tmp/badger
+.DS_Store
