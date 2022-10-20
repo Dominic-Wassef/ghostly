@@ -1,3 +1,5 @@
+.idea
 coverage.out
-cache/testdata/tmp/badger
+dist/*
 .DS_Store
+cache/testdata
