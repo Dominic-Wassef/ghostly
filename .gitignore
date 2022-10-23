@@ -3,3 +3,4 @@ coverage.out
 dist/*
 .DS_Store
 cache/testdata
+.vscode
