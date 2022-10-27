@@ -20,3 +20,13 @@ func (g *Ghostly) routes() http.Handler {
 
 	return mux
 }
+
+// Routes are ghostly specific routes, which are mounted in the routes file
+// in ghostly applications
+func Routes() http.Handler {
+	r := chi.NewRouter()
+	r.Get("/test-c", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("it works!"))
+	})
+	return r
+}
