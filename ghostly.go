@@ -13,6 +13,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/dominic-wassef/ghostly/cache"
+	"github.com/dominic-wassef/ghostly/filesystems/miniofilesystem"
 	"github.com/dominic-wassef/ghostly/mailer"
 	"github.com/dominic-wassef/ghostly/render"
 	"github.com/dominic-wassef/ghostly/session"
@@ -49,6 +50,7 @@ type Ghostly struct {
 	Scheduler     *cron.Cron
 	Mail          mailer.Mail
 	Server        Server
+	FileSystems   map[string]interface{}
 }
 
 type Server struct {
@@ -207,6 +209,7 @@ func (g *Ghostly) New(rootPath string) error {
 	}
 
 	g.createRenderer()
+	g.FileSystems = g.createFileSystems()
 	go g.Mail.ListenForMail()
 
 	return nil
@@ -367,4 +370,27 @@ func (g *Ghostly) BuildDSN() string {
 	}
 
 	return dsn
+}
+
+func (g *Ghostly) createFileSystems() map[string]interface{} {
+	fileSystems := make(map[string]interface{})
+
+	if os.Getenv("MINIO_SECRET") != "" {
+		useSSL := false
+		if strings.ToLower(os.Getenv("MINIO_USESSL")) == "true" {
+			useSSL = true
+		}
+
+		minio := miniofilesystem.Minio{
+			Endpoint: os.Getenv("MINIO_ENDPOINT"),
+			Key:      os.Getenv("MINIO_KEY"),
+			Secret:   os.Getenv("MINIO_SECRET"),
+			UseSSL:   useSSL,
+			Region:   os.Getenv("MINIO_REGION"),
+			Bucket:   os.Getenv("MINIO_BUCKET"),
+		}
+		fileSystems["MINIO"] = minio
+	}
+
+	return fileSystems
 }
