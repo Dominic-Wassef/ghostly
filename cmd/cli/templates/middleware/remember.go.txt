@@ -55,14 +55,14 @@ func (m *Middleware) deleteRememberCookie(w http.ResponseWriter, r *http.Request
 	_ = m.App.Session.RenewToken(r.Context())
 	// delete the cookie
 	newCookie := http.Cookie{
-		Name:     fmt.Sprintf("_%s_remember", m.App.AppName),
-		Value:    "",
-		Path:     "/",
-		Expires:  time.Now().Add(-100 * time.Hour),
+		Name: fmt.Sprintf("_%s_remember", m.App.AppName),
+		Value: "",
+		Path: "/",
+		Expires: time.Now().Add(-100 * time.Hour),
 		HttpOnly: true,
-		Domain:   m.App.Session.Cookie.Domain,
-		MaxAge:   -1,
-		Secure:   m.App.Session.Cookie.Secure,
+		Domain: m.App.Session.Cookie.Domain,
+		MaxAge:  -1,
+		Secure: m.App.Session.Cookie.Secure,
 		SameSite: http.SameSiteStrictMode,
 	}
 	http.SetCookie(w, &newCookie)

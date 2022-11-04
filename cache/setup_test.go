@@ -34,20 +34,23 @@ func TestMain(m *testing.M) {
 	testRedisCache.Prefix = "test-ghostly"
 
 	defer testRedisCache.Conn.Close()
+
 	_ = os.RemoveAll("./testdata/tmp/badger")
-	// create a badger DB
+
+	// create a badger database
 	if _, err := os.Stat("./testdata/tmp"); os.IsNotExist(err) {
 		err := os.Mkdir("./testdata/tmp", 0755)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-	// making a badger folder
 	err = os.Mkdir("./testdata/tmp/badger", 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	db, _ := badger.Open(badger.DefaultOptions("./testdata/tmp/badger"))
 	testBadgerCache.Conn = db
+
 	os.Exit(m.Run())
 }

@@ -126,11 +126,13 @@ func (h *Handlers) Logout(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) Forgot(w http.ResponseWriter, r *http.Request) {
 	err := h.render(w, r, "forgot", nil, nil)
 	if err != nil {
-		h.App.ErrorLog.Println("Error rendering : ", err)
+		h.App.ErrorLog.Println("Error rendering: ", err)
 		h.App.Error500(w, r)
 	}
 }
 
+// PostForgot looks up a user by email, and if the user is found, generates
+// an email with a singed link to the reset password form
 func (h *Handlers) PostForgot(w http.ResponseWriter, r *http.Request) {
 	// parse form
 	err := r.ParseForm()
@@ -184,6 +186,7 @@ func (h *Handlers) PostForgot(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
 
+// ResetPasswordForm validates a signed url, and displays the password reset form, if appropriate
 func (h *Handlers) ResetPasswordForm(w http.ResponseWriter, r *http.Request) {
 	// get form values
 	email := r.URL.Query().Get("email")
@@ -229,26 +232,30 @@ func (h *Handlers) PostResetPassword(w http.ResponseWriter, r *http.Request) {
 		h.App.Error500(w, r)
 		return
 	}
-	// get ad decrypt the email
+
+	// get and decrypt the email
 	email, err := h.decrypt(r.Form.Get("email"))
 	if err != nil {
 		h.App.Error500(w, r)
 		return
 	}
-	// get user
+
+	// get the user
 	var u data.User
 	user, err := u.GetByEmail(email)
 	if err != nil {
 		h.App.Error500(w, r)
 		return
 	}
-	// reset password
+
+	// reset the password
 	err = user.ResetPassword(user.ID, r.Form.Get("password"))
 	if err != nil {
 		h.App.Error500(w, r)
 		return
 	}
+
 	// redirect
-	h.App.Session.Put(r.Context(), "flash", "Password reset. You can now login!")
+	h.App.Session.Put(r.Context(), "flash", "Password reset. You can now log in.")
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }

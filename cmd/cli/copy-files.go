@@ -10,9 +10,9 @@ import (
 //go:embed templates
 var templateFS embed.FS
 
-func copyFileFromTemplate(templatePath, targetFile string) error {
+func copyFilefromTemplate(templatePath, targetFile string) error {
 	if fileExists(targetFile) {
-		return errors.New(targetFile + " alreay exists!")
+		return errors.New(targetFile + " already exists!")
 	}
 
 	data, err := templateFS.ReadFile(templatePath)

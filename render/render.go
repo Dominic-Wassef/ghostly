@@ -37,25 +37,25 @@ type TemplateData struct {
 	Flash           string
 }
 
-func (g *Render) defaultData(td *TemplateData, r *http.Request) *TemplateData {
-	td.Secure = g.Secure
-	td.ServerName = g.ServerName
+func (c *Render) defaultData(td *TemplateData, r *http.Request) *TemplateData {
+	td.Secure = c.Secure
+	td.ServerName = c.ServerName
 	td.CSRFToken = nosurf.Token(r)
-	td.Port = g.Port
-	if g.Session.Exists(r.Context(), "userID") {
+	td.Port = c.Port
+	if c.Session.Exists(r.Context(), "userID") {
 		td.IsAuthenticated = true
 	}
-	td.Error = g.Session.PopString(r.Context(), "error")
-	td.Flash = g.Session.PopString(r.Context(), "flash")
+	td.Error = c.Session.PopString(r.Context(), "error")
+	td.Flash = c.Session.PopString(r.Context(), "flash")
 	return td
 }
 
-func (g *Render) Page(w http.ResponseWriter, r *http.Request, view string, variables, data interface{}) error {
-	switch strings.ToLower(g.Renderer) {
+func (c *Render) Page(w http.ResponseWriter, r *http.Request, view string, variables, data interface{}) error {
+	switch strings.ToLower(c.Renderer) {
 	case "go":
-		return g.GoPage(w, r, view, data)
+		return c.GoPage(w, r, view, data)
 	case "jet":
-		return g.JetPage(w, r, view, variables, data)
+		return c.JetPage(w, r, view, variables, data)
 	default:
 
 	}
@@ -63,8 +63,8 @@ func (g *Render) Page(w http.ResponseWriter, r *http.Request, view string, varia
 }
 
 // GoPage renders a standard Go template
-func (g *Render) GoPage(w http.ResponseWriter, r *http.Request, view string, data interface{}) error {
-	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/views/%s.page.tmpl", g.RootPath, view))
+func (c *Render) GoPage(w http.ResponseWriter, r *http.Request, view string, data interface{}) error {
+	tmpl, err := template.ParseFiles(fmt.Sprintf("%s/views/%s.page.tmpl", c.RootPath, view))
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (g *Render) GoPage(w http.ResponseWriter, r *http.Request, view string, dat
 }
 
 // JetPage renders a template using the Jet templating engine
-func (g *Render) JetPage(w http.ResponseWriter, r *http.Request, templateName string, variables, data interface{}) error {
+func (c *Render) JetPage(w http.ResponseWriter, r *http.Request, templateName string, variables, data interface{}) error {
 	var vars jet.VarMap
 
 	if variables == nil {
@@ -97,9 +97,9 @@ func (g *Render) JetPage(w http.ResponseWriter, r *http.Request, templateName st
 		td = data.(*TemplateData)
 	}
 
-	td = g.defaultData(td, r)
+	td = c.defaultData(td, r)
 
-	t, err := g.JetViews.GetTemplate(fmt.Sprintf("%s.jet", templateName))
+	t, err := c.JetViews.GetTemplate(fmt.Sprintf("%s.jet", templateName))
 	if err != nil {
 		log.Println(err)
 		return err

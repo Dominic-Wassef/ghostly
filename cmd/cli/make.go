@@ -18,6 +18,7 @@ func doMake(arg2, arg3 string) error {
 	case "key":
 		rnd := gho.RandomString(32)
 		color.Yellow("32 character encryption key: %s", rnd)
+
 	case "migration":
 		dbType := gho.DB.DataType
 		if arg3 == "" {
@@ -29,12 +30,12 @@ func doMake(arg2, arg3 string) error {
 		upFile := gho.RootPath + "/migrations/" + fileName + "." + dbType + ".up.sql"
 		downFile := gho.RootPath + "/migrations/" + fileName + "." + dbType + ".down.sql"
 
-		err := copyFileFromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
+		err := copyFilefromTemplate("templates/migrations/migration."+dbType+".up.sql", upFile)
 		if err != nil {
 			exitGracefully(err)
 		}
 
-		err = copyFileFromTemplate("templates/migrations/migration."+dbType+".down.sql", downFile)
+		err = copyFilefromTemplate("templates/migrations/migration."+dbType+".down.sql", downFile)
 		if err != nil {
 			exitGracefully(err)
 		}
@@ -112,12 +113,12 @@ func doMake(arg2, arg3 string) error {
 		htmlMail := gho.RootPath + "/mail/" + strings.ToLower(arg3) + ".html.tmpl"
 		plainMail := gho.RootPath + "/mail/" + strings.ToLower(arg3) + ".plain.tmpl"
 
-		err := copyFileFromTemplate("templates/mailer/mail.html.tmpl", htmlMail)
+		err := copyFilefromTemplate("templates/mailer/mail.html.tmpl", htmlMail)
 		if err != nil {
 			exitGracefully(err)
 		}
 
-		err = copyFileFromTemplate("templates/mailer/mail.plain.tmpl", plainMail)
+		err = copyFilefromTemplate("templates/mailer/mail.plain.tmpl", plainMail)
 		if err != nil {
 			exitGracefully(err)
 		}

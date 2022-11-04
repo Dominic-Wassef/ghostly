@@ -25,22 +25,22 @@ type Session struct {
 	RedisPool      *redis.Pool
 }
 
-func (s *Session) InitSession() *scs.SessionManager {
+func (c *Session) InitSession() *scs.SessionManager {
 	var persist, secure bool
 
 	// how long should sessions last?
-	minutes, err := strconv.Atoi(s.CookieLifetime)
+	minutes, err := strconv.Atoi(c.CookieLifetime)
 	if err != nil {
 		minutes = 60
 	}
 
 	// should cookies persist?
-	if strings.ToLower(s.CookiePersist) == "true" {
+	if strings.ToLower(c.CookiePersist) == "true" {
 		persist = true
 	}
 
 	// must cookies be secure?
-	if strings.ToLower(s.CookieSecure) == "true" {
+	if strings.ToLower(c.CookieSecure) == "true" {
 		secure = true
 	}
 
@@ -48,19 +48,19 @@ func (s *Session) InitSession() *scs.SessionManager {
 	session := scs.New()
 	session.Lifetime = time.Duration(minutes) * time.Minute
 	session.Cookie.Persist = persist
-	session.Cookie.Name = s.CookieName
+	session.Cookie.Name = c.CookieName
 	session.Cookie.Secure = secure
-	session.Cookie.Domain = s.CookieDomain
+	session.Cookie.Domain = c.CookieDomain
 	session.Cookie.SameSite = http.SameSiteLaxMode
 
 	// which session store?
-	switch strings.ToLower(s.SessionType) {
+	switch strings.ToLower(c.SessionType) {
 	case "redis":
-		session.Store = redisstore.New(s.RedisPool)
+		session.Store = redisstore.New(c.RedisPool)
 	case "mysql", "mariadb":
-		session.Store = mysqlstore.New(s.DBPool)
+		session.Store = mysqlstore.New(c.DBPool)
 	case "postgres", "postgresql":
-		session.Store = postgresstore.New(s.DBPool)
+		session.Store = postgresstore.New(c.DBPool)
 	default:
 		// cookie
 	}

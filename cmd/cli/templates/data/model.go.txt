@@ -98,3 +98,4 @@ func (t *$MODELNAME$) Builder(id int) ([]*$MODELNAME$, error) {
     }
     return result, nil
 }
+

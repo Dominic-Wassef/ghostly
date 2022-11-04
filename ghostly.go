@@ -13,7 +13,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/dgraph-io/badger/v3"
 	"github.com/dominic-wassef/ghostly/cache"
-	"github.com/dominic-wassef/ghostly/filesystems/miniofilesystem"
 	"github.com/dominic-wassef/ghostly/mailer"
 	"github.com/dominic-wassef/ghostly/render"
 	"github.com/dominic-wassef/ghostly/session"
@@ -50,7 +49,6 @@ type Ghostly struct {
 	Scheduler     *cron.Cron
 	Mail          mailer.Mail
 	Server        Server
-	FileSystems   map[string]interface{}
 }
 
 type Server struct {
@@ -109,8 +107,8 @@ func (g *Ghostly) New(rootPath string) error {
 		}
 	}
 
-	schduler := cron.New()
-	g.Scheduler = schduler
+	scheduler := cron.New()
+	g.Scheduler = scheduler
 
 	if os.Getenv("CACHE") == "redis" || os.Getenv("SESSION_TYPE") == "redis" {
 		myRedisCache = g.createClientRedisCache()
@@ -122,6 +120,7 @@ func (g *Ghostly) New(rootPath string) error {
 		myBadgerCache = g.createClientBadgerCache()
 		g.Cache = myBadgerCache
 		badgerConn = myBadgerCache.Conn
+
 		_, err = g.Scheduler.AddFunc("@daily", func() {
 			_ = myBadgerCache.Conn.RunValueLogGC(0.7)
 		})
@@ -182,7 +181,6 @@ func (g *Ghostly) New(rootPath string) error {
 		CookieDomain:   g.config.cookie.domain,
 	}
 
-	// Adding fields that contain non null value to the type session
 	switch g.config.sessionType {
 	case "redis":
 		sess.RedisPool = myRedisCache.Conn
@@ -198,18 +196,15 @@ func (g *Ghostly) New(rootPath string) error {
 			jet.NewOSFileSystemLoader(fmt.Sprintf("%s/views", rootPath)),
 			jet.InDevelopmentMode(),
 		)
-
 		g.JetViews = views
 	} else {
 		var views = jet.NewSet(
 			jet.NewOSFileSystemLoader(fmt.Sprintf("%s/views", rootPath)),
 		)
-
 		g.JetViews = views
 	}
 
 	g.createRenderer()
-	g.FileSystems = g.createFileSystems()
 	go g.Mail.ListenForMail()
 
 	return nil
@@ -242,9 +237,11 @@ func (g *Ghostly) ListenAndServe() {
 	if g.DB.Pool != nil {
 		defer g.DB.Pool.Close()
 	}
+
 	if redisPool != nil {
 		defer redisPool.Close()
 	}
+
 	if badgerConn != nil {
 		defer badgerConn.Close()
 	}
@@ -319,7 +316,6 @@ func (g *Ghostly) createClientBadgerCache() *cache.BadgerCache {
 	return &cacheClient
 }
 
-// Redis function
 func (g *Ghostly) createRedisPool() *redis.Pool {
 	return &redis.Pool{
 		MaxIdle:     50,
@@ -359,38 +355,24 @@ func (g *Ghostly) BuildDSN() string {
 			os.Getenv("DATABASE_NAME"),
 			os.Getenv("DATABASE_SSL_MODE"))
 
-		// we check to see if a database passsword has been supplied, since including "password=" with nothing
+		// we check to see if a database password has been supplied, since including "password=" with nothing
 		// after it sometimes causes postgres to fail to allow a connection.
 		if os.Getenv("DATABASE_PASS") != "" {
 			dsn = fmt.Sprintf("%s password=%s", dsn, os.Getenv("DATABASE_PASS"))
 		}
+
+	case "mysql", "mariadb":
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?collation=utf8_unicode_ci&timeout=5s&parseTime=true&tls=%s&readTimeout=5s",
+			os.Getenv("DATABASE_USER"),
+			os.Getenv("DATABASE_PASS"),
+			os.Getenv("DATABASE_HOST"),
+			os.Getenv("DATABASE_PORT"),
+			os.Getenv("DATABASE_NAME"),
+			os.Getenv("DATABASE_SSL_MODE"))
 
 	default:
 
 	}
 
 	return dsn
-}
-
-func (g *Ghostly) createFileSystems() map[string]interface{} {
-	fileSystems := make(map[string]interface{})
-
-	if os.Getenv("MINIO_SECRET") != "" {
-		useSSL := false
-		if strings.ToLower(os.Getenv("MINIO_USESSL")) == "true" {
-			useSSL = true
-		}
-
-		minio := miniofilesystem.Minio{
-			Endpoint: os.Getenv("MINIO_ENDPOINT"),
-			Key:      os.Getenv("MINIO_KEY"),
-			Secret:   os.Getenv("MINIO_SECRET"),
-			UseSSL:   useSSL,
-			Region:   os.Getenv("MINIO_REGION"),
-			Bucket:   os.Getenv("MINIO_BUCKET"),
-		}
-		fileSystems["MINIO"] = minio
-	}
-
-	return fileSystems
 }

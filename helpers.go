@@ -13,9 +13,10 @@ const (
 	randomString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 )
 
-// Generates a randomString
+// RandomString generates a random string length n from values in the const randomString
 func (g *Ghostly) RandomString(n int) string {
 	s, r := make([]rune, n), []rune(randomString)
+
 	for i := range s {
 		p, _ := rand.Prime(rand.Reader, len(r))
 		x, y := p.Uint64(), uint64(len(r))
@@ -24,6 +25,7 @@ func (g *Ghostly) RandomString(n int) string {
 	return string(s)
 }
 
+// CreateDirIfNotExist creates a new directory if it does not exist
 func (g *Ghostly) CreateDirIfNotExist(path string) error {
 	const mode = 0755
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -36,6 +38,7 @@ func (g *Ghostly) CreateDirIfNotExist(path string) error {
 	return nil
 }
 
+// CreateFileIfNotExists creates a new file at path if it does not exist
 func (g *Ghostly) CreateFileIfNotExists(path string) error {
 	var _, err = os.Stat(path)
 	if os.IsNotExist(err) {
@@ -71,22 +74,27 @@ func (e *Encryption) Encrypt(text string) (string, error) {
 
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+
 	return base64.URLEncoding.EncodeToString(ciphertext), nil
 }
 
 func (e *Encryption) Decrypt(cryptoText string) (string, error) {
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
+
 	block, err := aes.NewCipher(e.Key)
 	if err != nil {
 		return "", err
 	}
+
 	if len(ciphertext) < aes.BlockSize {
 		return "", err
 	}
 
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
+
 	stream := cipher.NewCFBDecrypter(block, iv)
 	stream.XORKeyStream(ciphertext, ciphertext)
+
 	return string(ciphertext), nil
 }

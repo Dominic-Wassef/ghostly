@@ -58,20 +58,20 @@ func getDSN() string {
 }
 
 func showHelp() {
-	color.Yellow(`
-	Available commands:
-	
-	help - show the help commands
-	version - print application version
-	migrate	- runs all up migrations that have not been run previously
-	migrate down - reverses the most recent migrations 
-	migrate reset - runs all down migrations in reverse order, and then all up migrations
+	color.Yellow(`Available commands:
+
+	help                  - show the help commands
+	version               - print application version
+	migrate               - runs all up migrations that have not been run previously
+	migrate down          - reverses the most recent migration
+	migrate reset         - runs all down migrations in reverse order, and then all up migrations
 	make migration <name> - creates two new up and down migrations in the migrations folder
-	make auth - creates and runs migrations for authentication tables, and creates models and middleware
-	make handler <name> - creates a sub handler in the handlers directory
-	make model <name> - creates a new model in the data directory
-	make session - creates a table in the database as a session store
-	make mail <name> - creates two starter mail templates in the mail directory
+	make auth             - creates and runs migrations for authentication tables, and creates models and middleware
+	make handler <name>   - creates a stub handler in the handlers directory
+	make model <name>     - creates a new model in the data directory
+	make session          - creates a table in the database as a session store
+	make mail <name>      - creates two starter mail templates in the mail directory
+	
 	`)
 }
 
@@ -80,15 +80,18 @@ func updateSourceFiles(path string, fi os.FileInfo, err error) error {
 	if err != nil {
 		return err
 	}
+
 	// check if current file is directory
 	if fi.IsDir() {
 		return nil
 	}
-	// only check go file
+
+	// only check go files
 	matched, err := filepath.Match("*.go", fi.Name())
 	if err != nil {
 		return err
 	}
+
 	// we have a matching file
 	if matched {
 		// read file contents
@@ -96,7 +99,9 @@ func updateSourceFiles(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			exitGracefully(err)
 		}
+
 		newContents := strings.Replace(string(read), "myapp", appURL, -1)
+
 		// write the changed file
 		err = os.WriteFile(path, []byte(newContents), 0)
 		if err != nil {

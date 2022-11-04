@@ -78,12 +78,12 @@ func (v *Validation) IsFloat(field, value string) {
 func (v *Validation) IsDateISO(field, value string) {
 	_, err := time.Parse("2006-01-02", value)
 	if err != nil {
-		v.AddError(field, "This field must be a date in YYYY-MM-DD")
+		v.AddError(field, "This field must be a date in the form of YYYY-MM-DD")
 	}
 }
 
 func (v *Validation) NoSpaces(field, value string) {
 	if govalidator.HasWhitespace(value) {
-		v.AddError(field, "Spaces are not allowed!")
+		v.AddError(field, "Spaces are not permitted")
 	}
 }

@@ -35,5 +35,6 @@ func doMigrate(arg2, arg3 string) error {
 	default:
 		showHelp()
 	}
+
 	return nil
 }

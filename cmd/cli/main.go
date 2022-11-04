@@ -42,11 +42,11 @@ func main() {
 		if err != nil {
 			exitGracefully(err)
 		}
-		message = "Migrations complete"
+		message = "Migrations complete!"
 
 	case "make":
 		if arg2 == "" {
-			exitGracefully(errors.New("make requires a subcommand: (migration[model]handler)"))
+			exitGracefully(errors.New("make requires a subcommand: (migration|model|handler)"))
 		}
 		err = doMake(arg2, arg3)
 		if err != nil {
@@ -56,13 +56,16 @@ func main() {
 	default:
 		showHelp()
 	}
+
 	exitGracefully(nil, message)
 }
 
 func validateInput() (string, string, string, error) {
 	var arg1, arg2, arg3 string
+
 	if len(os.Args) > 1 {
 		arg1 = os.Args[1]
+
 		if len(os.Args) >= 3 {
 			arg2 = os.Args[2]
 		}

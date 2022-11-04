@@ -19,7 +19,7 @@ func (g *Ghostly) MigrateUp(dsn string) error {
 	defer m.Close()
 
 	if err := m.Up(); err != nil {
-		log.Println("Error running migration: ", err)
+		log.Println("Error running migration:", err)
 		return err
 	}
 	return nil
@@ -35,6 +35,7 @@ func (g *Ghostly) MigrateDownAll(dsn string) error {
 	if err := m.Down(); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -48,6 +49,7 @@ func (g *Ghostly) Steps(n int, dsn string) error {
 	if err := m.Steps(n); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -61,5 +63,6 @@ func (g *Ghostly) MigrateForce(dsn string) error {
 	if err := m.Force(-1); err != nil {
 		return err
 	}
+
 	return nil
 }

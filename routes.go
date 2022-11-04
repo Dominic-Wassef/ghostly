@@ -16,13 +16,13 @@ func (g *Ghostly) routes() http.Handler {
 	}
 	mux.Use(middleware.Recoverer)
 	mux.Use(g.SessionLoad)
-	mux.Use(g.noSurf)
+	mux.Use(g.NoSurf)
 
 	return mux
 }
 
 // Routes are ghostly specific routes, which are mounted in the routes file
-// in ghostly applications
+// in Ghostly applications
 func Routes() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/test-c", func(w http.ResponseWriter, r *http.Request) {

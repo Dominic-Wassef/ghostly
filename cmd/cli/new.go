@@ -18,12 +18,14 @@ var appURL string
 func doNew(appName string) {
 	appName = strings.ToLower(appName)
 	appURL = appName
-	// santize the application name && convert url to single word
+
+	// sanitize the application name (convert url to single word)
 	if strings.Contains(appName, "/") {
 		exploded := strings.SplitAfter(appName, "/")
 		appName = exploded[(len(exploded) - 1)]
 	}
-	log.Println("App name is: ", appName)
+
+	log.Println("App name is", appName)
 
 	// git clone the skeleton application
 	color.Green("\tCloning repository...")
@@ -36,7 +38,7 @@ func doNew(appName string) {
 		exitGracefully(err)
 	}
 
-	// remove the .git directory
+	// remove .git directory
 	err = os.RemoveAll(fmt.Sprintf("./%s/.git", appName))
 	if err != nil {
 		exitGracefully(err)
@@ -58,46 +60,49 @@ func doNew(appName string) {
 		exitGracefully(err)
 	}
 
-	// create a makefile (linux, mac, windows, etc)
+	// create a makefile
 	if runtime.GOOS == "windows" {
 		source, err := os.Open(fmt.Sprintf("./%s/Makefile.windows", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
 		defer source.Close()
+
 		destination, err := os.Create(fmt.Sprintf("./%s/Makefile", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
 		defer destination.Close()
+
 		_, err = io.Copy(destination, source)
 		if err != nil {
 			exitGracefully(err)
 		}
-
 	} else {
 		source, err := os.Open(fmt.Sprintf("./%s/Makefile.mac", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
 		defer source.Close()
+
 		destination, err := os.Create(fmt.Sprintf("./%s/Makefile", appName))
 		if err != nil {
 			exitGracefully(err)
 		}
 		defer destination.Close()
+
 		_, err = io.Copy(destination, source)
 		if err != nil {
 			exitGracefully(err)
 		}
 	}
-
 	_ = os.Remove("./" + appName + "/Makefile.mac")
 	_ = os.Remove("./" + appName + "/Makefile.windows")
 
 	// update the go.mod file
-	color.Yellow("\tCreating go.mod file ...")
+	color.Yellow("\tCreating go.mod file...")
 	_ = os.Remove("./" + appName + "/go.mod")
+
 	data, err = templateFS.ReadFile("templates/go.mod.txt")
 	if err != nil {
 		exitGracefully(err)
@@ -105,12 +110,13 @@ func doNew(appName string) {
 
 	mod := string(data)
 	mod = strings.ReplaceAll(mod, "${APP_NAME}", appURL)
+
 	err = copyDataToFile([]byte(mod), "./"+appName+"/go.mod")
 	if err != nil {
 		exitGracefully(err)
 	}
 
-	// update the existing .go files with correct name and import
+	// update existing .go files with correct name/imports
 	color.Yellow("\tUpdating source files...")
 	os.Chdir("./" + appName)
 	updateSource()
@@ -122,6 +128,7 @@ func doNew(appName string) {
 	if err != nil {
 		exitGracefully(err)
 	}
-	color.Green("Done building " + appURL + "!")
-	color.Green("You're now running Ghostly!")
+
+	color.Green("Done building " + appURL)
+	color.Green("Going Ghostly")
 }

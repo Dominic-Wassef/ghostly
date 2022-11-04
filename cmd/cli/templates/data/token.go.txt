@@ -47,6 +47,7 @@ func (t *Token) GetUserForToken(token string) (*User, error) {
 	}
 
 	u.Token = theToken
+
 	return &u, nil
 }
 
@@ -70,6 +71,7 @@ func (t *Token) Get(id int) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &token, nil
 }
 
@@ -81,6 +83,7 @@ func (t *Token) GetByToken(plainText string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &token, nil
 }
 
@@ -91,6 +94,7 @@ func (t *Token) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -101,6 +105,7 @@ func (t *Token) DeleteByToken(plainText string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -176,6 +181,7 @@ func (t *Token) AuthenticateToken(r *http.Request) (*User, error) {
 	if err != nil {
 		return nil, errors.New("no matching user found")
 	}
+
 	return user, nil
 }
 
@@ -186,7 +192,7 @@ func (t *Token) ValidToken(token string) (bool, error) {
 	}
 
 	if user.Token.PlainText == "" {
-		return false, errors.New("no matching user found")
+		return false, errors.New("no matching token found")
 	}
 
 	if user.Token.Expires.Before(time.Now()) {

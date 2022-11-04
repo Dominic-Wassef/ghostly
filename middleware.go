@@ -11,7 +11,7 @@ func (g *Ghostly) SessionLoad(next http.Handler) http.Handler {
 	return g.Session.LoadAndSave(next)
 }
 
-func (g *Ghostly) noSurf(next http.Handler) http.Handler {
+func (g *Ghostly) NoSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	secure, _ := strconv.ParseBool(g.config.cookie.secure)
 
